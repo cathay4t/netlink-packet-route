@@ -52,10 +52,12 @@ impl Emitable for NsidMessage {
 
 #[cfg(test)]
 mod test {
+    use netlink_packet_core::NetlinkBuffer;
+
     use crate::{
-        nlas::nsid::Nla, traits::ParseableParametrized, NetlinkBuffer,
-        NsidHeader, NsidMessage, RtnlMessage, RtnlMessageBuffer,
-        NETNSA_NSID_NOT_ASSIGNED, RTM_GETNSID, RTM_NEWNSID,
+        nlas::nsid::Nla, traits::ParseableParametrized, NsidHeader,
+        NsidMessage, RtnlMessage, RtnlMessageBuffer, NETNSA_NSID_NOT_ASSIGNED,
+        RTM_GETNSID, RTM_NEWNSID,
     };
 
     #[rustfmt::skip]
