@@ -3,7 +3,7 @@
 use netlink_packet_core::{
     NetlinkHeader, NetlinkMessage, NetlinkPayload, NLM_F_DUMP, NLM_F_REQUEST,
 };
-use netlink_packet_route::{RtnlMessage, RuleMessage};
+use netlink_packet_route::{RouteNetlinkMessage, RuleMessage};
 use netlink_sys::{protocols::NETLINK_ROUTE, Socket, SocketAddr};
 
 fn main() {
@@ -15,7 +15,7 @@ fn main() {
     nl_hdr.flags = NLM_F_REQUEST | NLM_F_DUMP;
     let mut packet = NetlinkMessage::new(
         nl_hdr,
-        NetlinkPayload::from(RtnlMessage::GetRule(RuleMessage::default())),
+        NetlinkPayload::from(RouteNetlinkMessage::GetRule(RuleMessage::default())),
     );
 
     packet.finalize();
@@ -44,7 +44,7 @@ fn main() {
         loop {
             let bytes = &receive_buffer[offset..];
             let rx_packet =
-                <NetlinkMessage<RtnlMessage>>::deserialize(bytes).unwrap();
+                <NetlinkMessage<RouteNetlinkMessage>>::deserialize(bytes).unwrap();
             println!("<<< {rx_packet:?}");
 
             if matches!(rx_packet.payload, NetlinkPayload::Done(_)) {

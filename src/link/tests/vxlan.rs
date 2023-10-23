@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-use crate::RtnlMessage;
+use crate::RouteNetlinkMessage;
 use netlink_packet_core::NetlinkMessage;
 
 #[test]
@@ -114,5 +114,5 @@ fn test_parsing_link_vxlan() {
     ];
 
     // TODO: Expand this test to check both deserialize and serialize
-    NetlinkMessage::<RtnlMessage>::deserialize(raw.as_slice()).unwrap();
+    NetlinkMessage::<RouteNetlinkMessage>::deserialize(raw.as_slice()).unwrap();
 }

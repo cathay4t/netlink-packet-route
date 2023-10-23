@@ -54,8 +54,8 @@ impl Emitable for NsidMessage {
 #[cfg(test)]
 mod test {
     use crate::{
-        nlas::nsid::Nla, NsidHeader, NsidMessage, RtnlMessage,
-        RtnlMessageBuffer, NETNSA_NSID_NOT_ASSIGNED, RTM_GETNSID, RTM_NEWNSID,
+        nlas::nsid::Nla, NsidHeader, NsidMessage, RouteNetlinkMessage,
+        RouteNetlinkMessageBuffer, NETNSA_NSID_NOT_ASSIGNED, RTM_GETNSID, RTM_NEWNSID,
     };
     use netlink_packet_core::NetlinkBuffer;
     use netlink_packet_utils::traits::ParseableParametrized;
@@ -78,11 +78,11 @@ mod test {
             0x03, 0x00, // type = 3 (Fd)
             0x04, 0x00, 0x00, 0x00 // 4
         ];
-        let expected = RtnlMessage::GetNsId(NsidMessage {
+        let expected = RouteNetlinkMessage::GetNsId(NsidMessage {
             header: NsidHeader { rtgen_family: 0 },
             nlas: vec![Nla::Fd(4)],
         });
-        let actual = RtnlMessage::parse_with_param(&RtnlMessageBuffer::new(&NetlinkBuffer::new(&data).payload()), RTM_GETNSID).unwrap();
+        let actual = RouteNetlinkMessage::parse_with_param(&RouteNetlinkMessageBuffer::new(&NetlinkBuffer::new(&data).payload()), RTM_GETNSID).unwrap();
         assert_eq!(expected, actual);
     }
 
@@ -104,13 +104,13 @@ mod test {
             0x01, 0x00, // type = NETNSA_NSID
             0xff, 0xff, 0xff, 0xff // -1
         ];
-        let expected = RtnlMessage::NewNsId(NsidMessage {
+        let expected = RouteNetlinkMessage::NewNsId(NsidMessage {
             header: NsidHeader { rtgen_family: 0 },
             nlas: vec![Nla::Id(NETNSA_NSID_NOT_ASSIGNED)],
         });
         let nl_buffer = NetlinkBuffer::new(&data).payload();
-        let rtnl_buffer = RtnlMessageBuffer::new(&nl_buffer);
-        let actual = RtnlMessage::parse_with_param(&rtnl_buffer, RTM_NEWNSID).unwrap();
+        let rtnl_buffer = RouteNetlinkMessageBuffer::new(&nl_buffer);
+        let actual = RouteNetlinkMessage::parse_with_param(&rtnl_buffer, RTM_NEWNSID).unwrap();
         assert_eq!(expected, actual);
     }
 }

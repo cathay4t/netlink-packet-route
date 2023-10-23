@@ -4,7 +4,7 @@ use netlink_packet_core::{
     NetlinkHeader, NetlinkMessage, NetlinkPayload, NLM_F_DUMP, NLM_F_REQUEST,
 };
 use netlink_packet_route::{
-    nlas::link::Nla, LinkMessage, RtnlMessage, AF_BRIDGE,
+    nlas::link::Nla, LinkMessage, RouteNetlinkMessage, AF_BRIDGE,
     RTEXT_FILTER_BRVLAN_COMPRESSED,
 };
 use netlink_sys::{protocols::NETLINK_ROUTE, Socket, SocketAddr};
@@ -21,7 +21,7 @@ fn main() {
         .push(Nla::ExtMask(RTEXT_FILTER_BRVLAN_COMPRESSED));
     let mut packet = NetlinkMessage::new(
         NetlinkHeader::default(),
-        NetlinkPayload::from(RtnlMessage::GetLink(message)),
+        NetlinkPayload::from(RouteNetlinkMessage::GetLink(message)),
     );
     packet.header.flags = NLM_F_DUMP | NLM_F_REQUEST;
     packet.header.sequence_number = 1;
@@ -62,7 +62,7 @@ fn main() {
             // Parseable<NetlinkMessage>>::parse(NetlinkBuffer::new(&bytes))
             //         .unwrap();
             //
-            let rx_packet: NetlinkMessage<RtnlMessage> =
+            let rx_packet: NetlinkMessage<RouteNetlinkMessage> =
                 NetlinkMessage::deserialize(bytes).unwrap();
 
             println!("<<< {rx_packet:?}");

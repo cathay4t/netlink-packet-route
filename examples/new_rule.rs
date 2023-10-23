@@ -6,7 +6,7 @@ use netlink_packet_core::{
 };
 use netlink_packet_route::{
     constants::{AF_INET, FR_ACT_TO_TBL, RT_TABLE_DEFAULT},
-    rule, RtnlMessage, RuleHeader, RuleMessage,
+    rule, RouteNetlinkMessage, RuleHeader, RuleMessage,
 };
 use netlink_sys::{protocols::NETLINK_ROUTE, Socket, SocketAddr};
 
@@ -35,7 +35,7 @@ fn main() {
 
     let mut msg = NetlinkMessage::new(
         nl_hdr,
-        NetlinkPayload::from(RtnlMessage::NewRule(rule_msg)),
+        NetlinkPayload::from(RouteNetlinkMessage::NewRule(rule_msg)),
     );
 
     msg.finalize();
@@ -53,7 +53,7 @@ fn main() {
 
     while let Ok(_size) = socket.recv(&mut receive_buffer, 0) {
         let bytes = &receive_buffer[..];
-        let rx_packet = <NetlinkMessage<RtnlMessage>>::deserialize(bytes);
+        let rx_packet = <NetlinkMessage<RouteNetlinkMessage>>::deserialize(bytes);
         println!("<<< {rx_packet:?}");
         if let Ok(rx_packet) = rx_packet {
             if let NetlinkPayload::Error(e) = rx_packet.payload {

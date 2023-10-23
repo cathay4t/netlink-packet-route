@@ -11,7 +11,7 @@ use netlink_packet_route::{
         NUD_PERMANENT, NUD_PROBE, NUD_REACHABLE, NUD_STALE,
     },
     nlas::neighbour::Nla,
-    NeighbourMessage, RtnlMessage, AF_INET, AF_INET6,
+    NeighbourMessage, RouteNetlinkMessage, AF_INET, AF_INET6,
 };
 use netlink_sys::{protocols::NETLINK_ROUTE, Socket, SocketAddr};
 
@@ -25,7 +25,7 @@ fn main() {
 
     let mut req = NetlinkMessage::new(
         nl_hdr,
-        NetlinkPayload::from(RtnlMessage::GetNeighbour(
+        NetlinkPayload::from(RouteNetlinkMessage::GetNeighbour(
             NeighbourMessage::default(),
         )),
     );
@@ -49,12 +49,12 @@ fn main() {
         loop {
             let bytes = &receive_buffer[offset..];
             // Parse the message
-            let msg: NetlinkMessage<RtnlMessage> =
+            let msg: NetlinkMessage<RouteNetlinkMessage> =
                 NetlinkMessage::deserialize(bytes).unwrap();
 
             match msg.payload {
                 NetlinkPayload::Done(_) => break 'outer,
-                NetlinkPayload::InnerMessage(RtnlMessage::NewNeighbour(
+                NetlinkPayload::InnerMessage(RouteNetlinkMessage::NewNeighbour(
                     entry,
                 )) => {
                     let address_family = entry.header.family as u16;

@@ -1,53 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-mod inet;
-pub use self::inet::*;
-
-mod inet6;
-pub use self::inet6::*;
-
-mod af_spec_inet;
-pub use self::af_spec_inet::*;
-
-mod af_spec_bridge;
-pub use self::af_spec_bridge::*;
-
-mod link_infos;
-pub use self::link_infos::*;
-
-mod bond;
-pub use self::bond::*;
-
-mod bond_port;
-pub use self::bond_port::*;
-
-mod bridge;
-pub use self::bridge::*;
-
-mod prop_list;
-pub use self::prop_list::*;
-
-mod map;
-pub use self::map::*;
-
-mod stats;
-pub use self::stats::*;
-
-mod stats64;
-pub use self::stats64::*;
-
-mod link_state;
-pub use self::link_state::*;
-
-mod link_xdp;
-pub use self::link_xdp::*;
-
-mod vxlan;
-pub use self::vxlan::InfoVxlan;
-
-#[cfg(test)]
-mod tests;
-
 use std::os::unix::io::RawFd;
 
 use anyhow::Context;
@@ -59,13 +11,65 @@ use netlink_packet_utils::{
     DecodeError,
 };
 
-use crate::constants::*;
+const IFLA_ADDRESS: u16 = 1;
+const IFLA_BROADCAST: u16 = 2;
+const IFLA_IFNAME: u16 = 3;
+const IFLA_MTU: u16 = 4;
+const IFLA_LINK: u16 = 5;
+const IFLA_QDISC: u16 = 6;
+const IFLA_STATS: u16 = 7;
+const IFLA_COST: u16 = 8;
+const IFLA_PRIORITY: u16 = 9;
+const IFLA_MASTER: u16 = 10;
+const IFLA_WIRELESS: u16 = 11;
+const IFLA_PROTINFO: u16 = 12;
+const IFLA_TXQLEN: u16 = 13;
+const IFLA_MAP: u16 = 14;
+const IFLA_WEIGHT: u16 = 15;
+const IFLA_OPERSTATE: u16 = 16;
+const IFLA_LINKMODE: u16 = 17;
+const IFLA_LINKINFO: u16 = 18;
+const IFLA_NET_NS_PID: u16 = 19;
+const IFLA_IFALIAS: u16 = 20;
+const IFLA_NUM_VF: u16 = 21;
+const IFLA_VFINFO_LIST: u16 = 22;
+const IFLA_STATS64: u16 = 23;
+const IFLA_VF_PORTS: u16 = 24;
+const IFLA_PORT_SELF: u16 = 25;
+const IFLA_AF_SPEC: u16 = 26;
+const IFLA_GROUP: u16 = 27;
+const IFLA_NET_NS_FD: u16 = 28;
+const IFLA_EXT_MASK: u16 = 29;
+const IFLA_PROMISCUITY: u16 = 30;
+const IFLA_NUM_TX_QUEUES: u16 = 31;
+const IFLA_NUM_RX_QUEUES: u16 = 32;
+const IFLA_CARRIER: u16 = 33;
+const IFLA_PHYS_PORT_ID: u16 = 34;
+const IFLA_CARRIER_CHANGES: u16 = 35;
+const IFLA_PHYS_SWITCH_ID: u16 = 36;
+const IFLA_LINK_NETNSID: u16 = 37;
+const IFLA_PHYS_PORT_NAME: u16 = 38;
+const IFLA_PROTO_DOWN: u16 = 39;
+const IFLA_GSO_MAX_SEGS: u16 = 40;
+const IFLA_GSO_MAX_SIZE: u16 = 41;
+const IFLA_PAD: u16 = 42;
+const IFLA_XDP: u16 = 43;
+const IFLA_EVENT: u16 = 44;
+const IFLA_NEW_NETNSID: u16 = 45;
+const IFLA_IF_NETNSID: u16 = 46;
+const IFLA_CARRIER_UP_COUNT: u16 = 47;
+const IFLA_CARRIER_DOWN_COUNT: u16 = 48;
+const IFLA_NEW_IFINDEX: u16 = 49;
+const IFLA_MIN_MTU: u16 = 50;
+const IFLA_MAX_MTU: u16 = 51;
+const IFLA_PROP_LIST: u16 = 52;
+const IFLA_ALT_IFNAME: u16 = 53;
+const IFLA_PERM_ADDRESS: u16 = 54;
+const IFLA_PROTO_DOWN_REASON: u16 = 55;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 #[non_exhaustive]
-pub enum Nla {
-    // Vec<u8>
-    Unspec(Vec<u8>),
+pub enum LinkAtrribute {
     Cost(Vec<u8>),
     Priority(Vec<u8>),
     Weight(Vec<u8>),
@@ -109,7 +113,6 @@ pub enum Nla {
     /// Permanent hardware address of the device. The provides the same
     /// information as the ethtool ioctl interface.
     PermAddress(Vec<u8>),
-
     // string
     // FIXME: for empty string, should we encode the NLA as \0 or should we
     // not set a payload? It seems that for certain attriutes, this
@@ -273,8 +276,8 @@ impl nla::Nla for Nla {
                 | CarrierUpCount(ref bytes)
                 | CarrierDownCount(ref bytes)
                 | NewIfIndex(ref bytes)
-                // mac address (could be [u8; 6] or [u8; 4] for example. Not sure if we should have
-                // a separate type for them
+                // mac address (could be [u8; 6] or [u8; 4] for example. Not
+                // sure if we should have a separate type for them
                 | Address(ref bytes)
                 | Broadcast(ref bytes)
                 | PermAddress(ref bytes)
@@ -339,8 +342,6 @@ impl nla::Nla for Nla {
     fn kind(&self) -> u16 {
         use self::Nla::*;
         match *self {
-            // Vec<u8>
-            Unspec(_) => IFLA_UNSPEC,
             Cost(_) => IFLA_COST,
             Priority(_) => IFLA_PRIORITY,
             Weight(_) => IFLA_WEIGHT,
@@ -417,8 +418,6 @@ impl<'a, T: AsRef<[u8]> + ?Sized> ParseableParametrized<NlaBuffer<&'a T>, u16>
         use Nla::*;
         let payload = buf.value();
         Ok(match buf.kind() {
-            // Vec<u8>
-            IFLA_UNSPEC => Unspec(payload.to_vec()),
             IFLA_COST => Cost(payload.to_vec()),
             IFLA_PRIORITY => Priority(payload.to_vec()),
             IFLA_WEIGHT => Weight(payload.to_vec()),

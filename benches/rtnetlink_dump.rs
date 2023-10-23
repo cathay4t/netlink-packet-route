@@ -6,7 +6,7 @@ use criterion::{criterion_group, criterion_main, Criterion};
 use pcap_file::PcapReader;
 
 use netlink_packet_core::NetlinkMessage;
-use netlink_packet_route::RtnlMessage;
+use netlink_packet_route::RouteNetlinkMessage;
 
 fn bench(c: &mut Criterion) {
     let pcap_reader =
@@ -18,7 +18,7 @@ fn bench(c: &mut Criterion) {
     c.bench_function("parse", move |b| {
         b.iter(|| {
             for (i, buf) in packets.iter().enumerate() {
-                NetlinkMessage::<RtnlMessage>::deserialize(&buf[16..])
+                NetlinkMessage::<RouteNetlinkMessage>::deserialize(&buf[16..])
                     .unwrap_or_else(|_| panic!("message {} failed", i));
             }
         })

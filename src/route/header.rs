@@ -8,7 +8,7 @@ use netlink_packet_utils::{
 use crate::{constants::*, RouteMessageBuffer, ROUTE_HEADER_LEN};
 
 bitflags! {
-    /// Flags that can be set in a `RTM_GETROUTE` ([`RtnlMessage::GetRoute`]) message.
+    /// Flags that can be set in a `RTM_GETROUTE` ([`RouteNetlinkMessage::GetRoute`]) message.
     #[non_exhaustive]
 pub struct RouteFlags: u32 {
         /// If the route changes, notify the user via rtnetlink

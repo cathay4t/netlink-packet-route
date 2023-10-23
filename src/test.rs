@@ -7,7 +7,8 @@ use netlink_packet_utils::traits::ParseableParametrized;
 
 use crate::{
     nlas::link::{Info, InfoKind, Nla},
-    LinkHeader, LinkMessage, RtnlMessage, RtnlMessageBuffer, RTM_NEWLINK,
+    LinkHeader, LinkMessage, RouteNetlinkMessage, RouteNetlinkMessageBuffer,
+    RTM_NEWLINK,
 };
 
 // This test was added because one of the NLA's payload is a string that is not
@@ -46,7 +47,7 @@ fn test_non_null_terminated_string() {
         0x62, 0x72, 0x69, 0x64, 0x67, 0x65,
         0x00, 0x00, // padding
         ];
-    let expected = RtnlMessage::NewLink(LinkMessage {
+    let expected = RouteNetlinkMessage::NewLink(LinkMessage {
         header: LinkHeader::default(),
         nlas: vec![
             Nla::IfName(String::from("qemu-br1")),
@@ -54,12 +55,11 @@ fn test_non_null_terminated_string() {
         ],
     });
     let nl_buffer = NetlinkBuffer::new(&data).payload();
-    let rtnl_buffer = RtnlMessageBuffer::new(&nl_buffer);
-    let actual = RtnlMessage::parse_with_param(&rtnl_buffer, RTM_NEWLINK).unwrap();
+    let rtnl_buffer = RouteNetlinkMessageBuffer::new(&nl_buffer);
+    let actual = RouteNetlinkMessage::parse_with_param(&rtnl_buffer, RTM_NEWLINK).unwrap();
     assert_eq!(expected, actual);
 }
 
-#[rustfmt::skip]
 #[test]
 fn test_attach_to_bridge() {
     use crate::*;
@@ -78,12 +78,14 @@ fn test_attach_to_bridge() {
         // NLA (set master)
         0x08, 0x00, // length
         0x0a, 0x00, // type
-        0x05, 0x00, 0x00, 0x00 // index of the master interface
+        0x05, 0x00, 0x00, 0x00, // index of the master interface
     ];
     let nl_buffer = NetlinkBuffer::new(&data).payload();
-    let rtnl_buffer = RtnlMessageBuffer::new(&nl_buffer);
-    let actual = RtnlMessage::parse_with_param(&rtnl_buffer, RTM_NEWLINK).unwrap();
-    let expected = RtnlMessage::NewLink(LinkMessage {
+    let rtnl_buffer = RouteNetlinkMessageBuffer::new(&nl_buffer);
+    let actual =
+        RouteNetlinkMessage::parse_with_param(&rtnl_buffer, RTM_NEWLINK)
+            .unwrap();
+    let expected = RouteNetlinkMessage::NewLink(LinkMessage {
         header: LinkHeader {
             interface_family: 0,
             index: 6,

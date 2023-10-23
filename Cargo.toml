@@ -2,7 +2,7 @@
 authors = ["Corentin Henry <corentinhenry@gmail.com>"]
 name = "netlink-packet-route"
 version = "0.17.1"
-edition = "2018"
+edition = "2021"
 
 homepage = "https://github.com/rust-netlink/netlink-packet-route"
 keywords = ["netlink", "linux"]
