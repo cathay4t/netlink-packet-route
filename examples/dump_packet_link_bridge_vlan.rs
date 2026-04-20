@@ -56,7 +56,7 @@ fn main() {
             // not particularly user friendly, but this is a low
             // level library anyway.
             //
-            // Note also that the same could be written more explicitely with:
+            // Note also that the same could be written more explicitly with:
             //
             // let rx_packet =
             //     <NetlinkBuffer<_> as

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 // This file only contains testing parsing RouteNetlinkMessage, not focusing on
-// detailed sub-component parsing. Each component has their own tests moduel.
+// detailed sub-component parsing. Each component has its own test module.
 
 use netlink_packet_core::{
     Emitable, NetlinkHeader, NetlinkMessage, NetlinkPayload,
