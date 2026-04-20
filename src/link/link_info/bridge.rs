@@ -118,7 +118,7 @@ pub enum InfoBridge {
 impl Nla for InfoBridge {
     fn value_len(&self) -> usize {
         match self {
-            // The existance of FdbFlush means true
+            // The existence of FdbFlush means true
             Self::FdbFlush => 0,
             Self::HelloTimer(_)
             | Self::TcnTimer(_)

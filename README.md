@@ -5,7 +5,7 @@ protocol([`rtnetlink`][rtnetlink_man]) packet into Rust data types. The goal of
 this crate is saving netlink user from reading Kernel Netlink codes.
 
 This crate grouped Netlink route protocol into these modules:
- * `link`: NIC interface, similar to to `ip link` command.
+ * `link`: NIC interface, similar to `ip link` command.
  * `address`: IP address, similar to `ip address` command.
  * `route`: Route, similar to `ip route` command.
  * `rule`: Route rule, similar to `ip rule` command.
